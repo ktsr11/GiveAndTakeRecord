@@ -1,59 +1,60 @@
 import 'package:flutter/material.dart';
 
-final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-final SnackBar snackBar = const SnackBar(content: Text('Showing Snackbar'));
 
-void openPage(BuildContext context) {
-  Navigator.push(context, MaterialPageRoute(
-    builder: (BuildContext context) {
-      return Scaffold( 
+
+class MotherTabPage extends StatefulWidget {
+  const MotherTabPage({ Key key }) : super(key: key);
+
+  @override 
+  _MotherTabPageState createState() => _MotherTabPageState();
+}
+
+class _MotherTabPageState extends State<MotherTabPage> with SingleTickerProviderStateMixin {
+    final List<Tab> tabs = <Tab>[
+      Tab(text: 'LEFT'),
+      Tab(text: "RIGHT")
+    ];
+
+    TabController _tabController;
+
+    @override 
+    void initState() {
+      super.initState();
+      _tabController = TabController(vsync: this, length: tabs.length);
+    }
+
+    @override 
+    void dispose() {
+      _tabController.dispose();
+      super.dispose();
+    }
+
+    @override 
+    Widget build(BuildContext context) {
+      return Scaffold(
         appBar: AppBar(
-          title: const Text('Next page'),
+          title: Text("Pages"),
+        backgroundColor: Colors.lime,
         ),
-        body: const Center(
-          child: Text(
-            'This is the next page',
-            style: TextStyle(fontSize: 24),
+        body: TabBarView(
+          controller: _tabController,
+          children: tabs.map((Tab tab) {
+            final String label = tab.text.toLowerCase();
+            return Center(
+              child: Text(
+                'This is the $label tab',
+                style: const TextStyle(fontSize: 36),
+              ),
+            );
+          }).toList(),
+        ),
+        bottomNavigationBar: Material(
+          color: Colors.pinkAccent,
+          child: TabBar(
+            controller: _tabController,
+            tabs: tabs,
           ),
         ),
       );
     }
-  ));
-}
-
-class MotherPlaceWidget extends StatelessWidget {
-  MotherPlaceWidget({Key key}) : super(key: key);
-
-  @override 
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('AppBar Demo'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.add_alert),
-            tooltip: 'Show Snackbar',
-            onPressed: () {
-              scaffoldKey.currentState.showSnackBar(snackBar);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.navigate_next),
-            tooltip: 'Next page',
-            onPressed: () {
-              openPage(context);
-            },
-          )
-        ],
-      ),
-      body: const Center(
-        child: Text(
-          'This is home page',
-          style: TextStyle(
-            fontSize: 24,
-          ),
-        ),
-      ),
-    );
-  }
 }
