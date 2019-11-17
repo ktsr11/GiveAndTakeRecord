@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:giv_tak_rec/celebrationPage.dart';
+import 'package:giv_tak_rec/condolencePage.dart';
 
 
 
@@ -38,15 +40,10 @@ class _MotherTabPageState extends State<MotherTabPage> with SingleTickerProvider
         ),
         body: TabBarView(
           controller: _tabController,
-          children: tabs.map((Tab tab) {
-            final String label = tab.text.toLowerCase();
-            return Center(
-              child: Text(
-                'This is the $label tab',
-                style: const TextStyle(fontSize: 36),
-              ),
-            );
-          }).toList(),
+          children: <Widget>[
+            CelebarationPage(),
+            CondolencePage(),
+          ]
         ),
         bottomNavigationBar: Material(
           color: Colors.pinkAccent,
