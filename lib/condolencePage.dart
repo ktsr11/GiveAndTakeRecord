@@ -9,7 +9,7 @@ class CondolencePage extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.all(10.0),
           color: Colors.blue[500],
-          width: 48.0,
+          width: 50.0,
           height: 48.0,
         ),
       )

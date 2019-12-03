@@ -13,8 +13,8 @@ class MotherTabPage extends StatefulWidget {
 
 class _MotherTabPageState extends State<MotherTabPage> with SingleTickerProviderStateMixin {
     final List<Tab> tabs = <Tab>[
-      Tab(text: 'LEFT'),
-      Tab(text: "RIGHT")
+      Tab(text: '리스트'),
+      Tab(text: "환경설정")
     ];
 
     TabController _tabController;
@@ -35,7 +35,7 @@ class _MotherTabPageState extends State<MotherTabPage> with SingleTickerProvider
     Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-          title: Text("Pages"),
+          title: Text("기브앤테이크"),
         backgroundColor: Colors.lime,
         ),
         body: TabBarView(

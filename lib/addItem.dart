@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:giv_tak_rec/database_helper.dart';
+import 'package:giv_tak_rec/bloc/personalUnit_bloc.dart';
 
 import 'package:intl/intl.dart';
+import 'package:giv_tak_rec/model/personal_unit.dart';
+
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 
 
 class AddItemScreen extends StatelessWidget {
@@ -31,24 +34,51 @@ class InputForm extends StatefulWidget {
 class _InputFormState extends State<InputForm> {
   final _formKey = GlobalKey<FormState>();
   final _sizeHeight = 15.0;
-  final dbHelper = DatabaseHelper.instance;
 
-  DateTime _date = DateTime.now();
+  PersonalUnitBloc bloc = PersonalUnitBloc();
+  
+  bool _formWasEdited = false;
 
-  Future<Null> _selectDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
-      context: context,
-          initialDate: _date,
-      firstDate: DateTime(1950),
-      lastDate: DateTime(2050),
-    );
+  PersonalUnit per = PersonalUnit();
 
-    if(picked != null && picked != _date) {
-      print('Date selected: ${_date.toString()}');
-      setState((){
-        _date = picked;
-      });
-    }
+  final _UsNumberTextInputFormatter _phoneNumberFormatter = _UsNumberTextInputFormatter();
+  final _NumberTextInputFormatter _numberTextInputFormatter = _NumberTextInputFormatter();
+
+  @override
+  void dispose() {
+    super.dispose();
+    bloc.dispose();
+  }
+
+  String _validateName(String value) {
+    _formWasEdited = true;
+    if (value.isEmpty)
+      return '이름입력이 필요합니다.';
+    // final RegExp nameExp = RegExp(r'^[A-Za-z ]+$');
+    // if (!nameExp.hasMatch(value))
+    //   return '문자로만 입력이 가능합니다.';
+    return null;
+  }
+
+
+  String _validatePhoneNumber(String value) {
+    _formWasEdited = true;
+    if (value.isEmpty)
+      return '전화번호를 입력해주세요.';
+    // final RegExp phoneExp = RegExp(r'^\(\d\d\d\) \d\d\d\-\d\d\d\d$');
+    // if (!phoneExp.hasMatch(value))
+    //   return '###-####-#### - 폰 전화번호 입력.';
+    return null;
+  }
+
+  String _validateNumber(String value) {
+    _formWasEdited = true;
+    if (value.isEmpty)
+      return '금액을 입력이 필요합니다.';
+    final RegExp numberExp = RegExp(r'^[0-9]');
+    if(!numberExp.hasMatch(value))
+      return '숫자 형식으로만 입력.';
+    return null;
   }
 
   @override 
@@ -62,7 +92,11 @@ class _InputFormState extends State<InputForm> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               TextFormField(
-                decoration: InputDecoration(
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  filled: false,
+                  icon: Icon(Icons.subtitles),
                   labelText: '제목',
                   hintText: '제목을 입력해주세요.'
                 ),
@@ -72,79 +106,99 @@ class _InputFormState extends State<InputForm> {
                   }
                   return null;
                 },
+                onSaved: (value) => setState(() => per.title = value),
               ),
               SizedBox(
                 height: _sizeHeight,
               ),
               TextFormField(
-                decoration: InputDecoration(
-                  labelText: "이름",
-                  hintText: "이름을 입력해주세요."
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  filled: false,
+                  icon: Icon(Icons.person),
+                  hintText: '이름 입력',
+                  labelText: '이름',
                 ),
-                validator: (value) {
-                  if(value.isEmpty){
-                    return '이름을 입력해주세요.';
-                  }
-                  return null;
-                },
+                onSaved: (value) => setState(() => per.name = value),
+                validator: _validateName,
               ),
               SizedBox(
                 height: _sizeHeight,
               ),
-              Container(
-                child: Row(
-                  children: <Widget>[
-                    RaisedButton(
-                      child: Text('날짜 선택'),
-                      onPressed: () {
-                        _selectDate(context); 
-                      },
+              DateTimePickerFormField(
+                inputType: InputType.date, //날짜 및 시간 입력 받는 설정 
+                initialDate: DateTime.now(),
+                format: DateFormat("yyyy-MM-dd"), //날짜 포맷 지정 
+                decoration: InputDecoration(
+                    labelText: '날짜입력',
+                    border: UnderlineInputBorder(),
+                    filled: false,
+                    icon: Icon(Icons.calendar_today),
+                ),
+                 onChanged: (dt) => setState(() => per.date = DateFormat("yyyy-MM-dd").format(dt)),
+              ),
+              SizedBox(
+                height: _sizeHeight,
+              ),
+              TextFormField(
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      filled: false,
+                      icon: Icon(Icons.phone),
+                      hintText: '전화번호를 입력해주세요.',
+                      labelText: '전화번호',
                     ),
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.7,
-                      child: Text('${DateFormat("yyyy-MM-dd").format(_date)}',style: TextStyle(fontSize: 20), textAlign: TextAlign.center),
+                    keyboardType: TextInputType.phone,
+                    onSaved: (value) => setState(() => per.phoneNumber = value),
+                    validator: _validatePhoneNumber,
+                    // TextInputFormatters are applied in sequence.
+                    inputFormatters: <TextInputFormatter> [
+                      WhitelistingTextInputFormatter.digitsOnly,
+                      // Fit the validating format.
+                      _phoneNumberFormatter,
+                    ],
+                  ),
+              SizedBox(
+                height: _sizeHeight,
+              ),
+              TextFormField(
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      filled: false,
+                      icon: Icon(Icons.attach_money),
+                      hintText: '경조사 금액을 입력해주세요.',
+                      labelText: '금액',
                     ),
-                  ],
-                ),
-              ),
+                    textAlign: TextAlign.right,
+                    keyboardType: TextInputType.number,
+                    onSaved: (value) => setState(() => per.amt = int.parse(value.replaceAll(",", ""))  ),
+                    validator: _validateNumber,
+                    // TextInputFormatters are applied in sequence.
+                    inputFormatters: <TextInputFormatter> [
+
+                      WhitelistingTextInputFormatter.digitsOnly,
+                      // Fit the validating format.
+                      _numberTextInputFormatter
+                    ],
+                  ),
               SizedBox(
                 height: _sizeHeight,
-              ),
-              TextFormField(
-                keyboardType: TextInputType.number,
-                inputFormatters: [BlacklistingTextInputFormatter(new RegExp('[\\-|\\ ]'))],
-                textAlign: TextAlign.right,
-                decoration: InputDecoration(
-                  labelText: "금액",
-                  hintText: "금액을 입력해주세요."
-                ),
-                validator: (value) {
-                  if(value.isEmpty){
-                    return '금액을 입력해주세요.';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(
-                height: _sizeHeight,
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "전화번호",
-                  hintText: "전화번호 입력",
-                ),
-                validator: (value) {
-                  if(value.isEmpty){
-                    return '전화번호를 입력해주세요.';
-                  }
-                  return null;
-                },
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: RaisedButton(
                   onPressed: () {
-                    _delete();
+                   if (_formKey.currentState.validate()) {
+                     _formKey.currentState.save();
+                      bloc.addPersons(per);
+
+                      final snackBar = SnackBar(
+                        content: Text("저장 완료"),
+                      );
+                      Scaffold.of(context).showSnackBar(snackBar);
+                      Navigator.pop(context);
+                    }
                   },
                   child: Text('저장'),
                 ),
@@ -155,37 +209,6 @@ class _InputFormState extends State<InputForm> {
       ),
     );
   }
-
-  void _insert() async {
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnName : 'Bob',
-      DatabaseHelper.columnAge : 23
-    };
-    final id = await dbHelper.insert(row);
-    print('inserted row id: $id');
-  }
-
-  void _query() async {
-    final allRows = await dbHelper.queryAllRows();
-    print('query all rows:');
-    allRows.forEach((row) => print(row));
-  }
-
-  void _update() async {
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnId : 1,
-      DatabaseHelper.columnName : 'Mary',
-      DatabaseHelper.columnAge : 32
-    };
-    final rowsAffected = await dbHelper.update(row);
-    print('update $rowsAffected row(s)');
-  }
-
-  void _delete() async {
-    final id = await dbHelper.queryRowCount();
-    final rowsDeleted = await dbHelper.delete(id);
-    print('deleted $rowsDeleted row(s): row $id');
-  }
 }
 
 class ScreenArguments {
@@ -194,3 +217,46 @@ class ScreenArguments {
 
   ScreenArguments(this.title, this.message);
 }
+
+class _UsNumberTextInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final int newTextLength = newValue.text.length;
+    int selectionIndex = newValue.selection.end;
+    int usedSubstringIndex = 0;
+    final StringBuffer newText = StringBuffer();
+    if (newTextLength >= 4) {
+      newText.write(newValue.text.substring(0, usedSubstringIndex = 3) + ') ');
+      if (newValue.selection.end >= 3)
+        selectionIndex += 2;
+    }
+    if (newTextLength >= 7) {
+      newText.write(newValue.text.substring(3, usedSubstringIndex = 7) + '-');
+      if (newValue.selection.end >= 7)
+        selectionIndex++;
+    }
+    // Dump the rest.
+    if (newTextLength >= usedSubstringIndex)
+      newText.write(newValue.text.substring(usedSubstringIndex));
+    return TextEditingValue(
+      text: newText.toString(),
+      selection: TextSelection.collapsed(offset: selectionIndex),
+    );
+  }
+}
+
+class _NumberTextInputFormatter extends TextInputFormatter {
+  @override 
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ){
+    return TextEditingValue(
+      text: new NumberFormat("#,###").format( int.parse( newValue.text.toString() ) ),
+    );
+  }
+}
+
