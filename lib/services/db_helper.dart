@@ -63,6 +63,15 @@ class DBHelper {
     return res;
   }
 
+  Future<PersonalUnit> selectPerson(int id) async {
+    final db = await database;
+    var res = await db.rawQuery("SELECT * FROM $table WHERE $columnId = $id");
+    if(res.length > 0) {
+      return new PersonalUnit.fromJson(res.first);
+    }
+    return null;
+  }
+
   //READ 
   Future<List<PersonalUnit>> getListPersonUnit() async {
     final db = await database; 

@@ -19,6 +19,10 @@ class PersonalUnitBloc {
     _personController.sink.add(await DBHelper().getListPersonUnit());
   }
 
+  Future<PersonalUnit> getPersonOne(int id) async {
+    return await DBHelper().selectPerson(id);
+  }
+
   addPersons(PersonalUnit person) async {
     await DBHelper().createData(person);
     getPersons();

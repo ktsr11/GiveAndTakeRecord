@@ -24,8 +24,17 @@ class CelebarationPage extends StatelessWidget {
                   child: ListTile(
                     title: Text(item.title),
                     leading: Text(item.id.toString()),
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        AddItemScreen.routeName,
+                        arguments: ScreenArguments(
+                          '축의금',
+                          '자세히'
+                        )
+                      );
+                    },
                   ),
-                  
                 );
               },
             )
