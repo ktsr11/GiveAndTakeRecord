@@ -1,44 +1,40 @@
 import 'dart:async';
+import 'package:giv_tak_rec/bloc/bloc_base.dart';
 import 'package:giv_tak_rec/model/personal_unit.dart';
 import 'package:giv_tak_rec/services/db_helper.dart';
 
 
-class PersonalUnitBloc {
+
+class PersonalUnitBloc implements BlocBase {
+
+  final _controller = StreamController<List<PersonalUnit>>.broadcast();
+
+  StreamSink<List<PersonalUnit>> get _inPers => _controller.sink;
+
+  Stream<List<PersonalUnit>> get pers => _controller.stream;
+
+  final _addController = StreamController<PersonalUnit>.broadcast();
+
+  StreamSink<PersonalUnit> get inAdd => _addController.sink;
+
   PersonalUnitBloc() {
     getPersons();
-  }
+    _addController.stream.listen(_addPersons);
 
-  final _personController = StreamController<List<PersonalUnit>>.broadcast();
-  get persons => _personController.stream;
+  }
 
   dispose() {
-    _personController.close();
+    _controller.close();
+    _addController.close();
   }
 
-  getPersons() async {
-    _personController.sink.add(await DBHelper().getListPersonUnit());
+  void getPersons() async {
+    List<PersonalUnit> pers = await DBHelper().getListPersonUnit();
+    _inPers.add(pers);
   }
 
-  Future<PersonalUnit> getPersonOne(int id) async {
-    return await DBHelper().selectPerson(id);
-  }
-
-  addPersons(PersonalUnit person) async {
+  void _addPersons(PersonalUnit person) async {
     await DBHelper().createData(person);
-    getPersons();
-  }
-
-  deletePerson(int id) async {
-    await DBHelper().deletePerson(id);
-  }
-
-  deleteAll() async {
-    await DBHelper().deletaAllPerson();
-    getPersons();
-  }
-
-  updatePerson(PersonalUnit person) async {
-    await DBHelper().updatePerson(person);
     getPersons();
   }
 }

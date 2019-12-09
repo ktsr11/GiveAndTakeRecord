@@ -1,58 +1,104 @@
 import 'package:flutter/material.dart';
+import 'package:giv_tak_rec/addItem.dart';
+import 'package:giv_tak_rec/bloc/bloc_base.dart';
+import 'package:giv_tak_rec/bloc/personalUnit_bloc.dart';
+import 'package:giv_tak_rec/bloc/view_personalUnit_bloc.dart';
 import 'package:giv_tak_rec/model/personal_unit.dart';
-import 'package:giv_tak_rec/services/db_helper.dart';
-import './addItem.dart';
 
 
 class CelebarationPage extends StatelessWidget {
+
+  CelebarationPage({Key key}) : super(key: key);
+
   @override 
   Widget build(BuildContext context) {
+    return CelebarationBody();
+  }
+}
+
+class CelebarationBody extends StatefulWidget {
+  _CelbarationBody createState() => _CelbarationBody();
+}
+
+class _CelbarationBody extends State<CelebarationBody>{
+  PersonalUnitBloc _bloc;
+  ViewPersonalUnitBloc _viewBloc;
+
+  @override 
+  void initState() {
+    super.initState();
+    _bloc = BlocProvider.of<PersonalUnitBloc>(context);
+    _viewBloc = ViewPersonalUnitBloc();
+  }
+
+  // void _navigateToPersonal(PersonalUnit per) async {
+  //   bool update = await Navigator.of(context).push(
+  //     MaterialPageRoute(
+  //       builder: (context) => BlocProvider(
+  //         bloc: PersonalUnitBloc(),
+  //         child: ViewItem(
+
+  //         ),
+  //       )
+  //     )
+  //   );
+  // }
+
+  void _navigateRegToNote(PersonalUnit per) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => BlocProvider(
+          bloc: PersonalUnitBloc(),
+          child: AddItem(
+            title: '등록',
+            per: per
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-        future: DBHelper().getListPersonUnit(),
+      body: StreamBuilder(
+        stream: _bloc.pers,
         builder: (BuildContext context, AsyncSnapshot<List<PersonalUnit>> snapshot) {
-          return snapshot.hasData ?
-            ListView.builder(
+          return snapshot.hasData
+            ? ListView.builder(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
                 PersonalUnit item = snapshot.data[index];
                 return Dismissible(
                   key: UniqueKey(),
                   onDismissed: (direction) {
-                    DBHelper().deletePerson(item.id);
+                    _viewBloc.inDelete.add(item.id);
                   },
                   child: ListTile(
                     title: Text(item.title),
-                    leading: Text(item.id.toString()),
+                    leading: Text(
+                      item.id.toString(),
+                    ),
                     onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        AddItemScreen.routeName,
-                        arguments: ScreenArguments(
-                          '축의금',
-                          '자세히'
-                        )
-                      );
+                      _navigateRegToNote(item);
                     },
                   ),
                 );
               },
             )
-            : Center(
-              child: CircularProgressIndicator(),
-            ); 
-        },
+            :
+            Center(
+              child: Center(
+                child: Text('No Data'),
+              ),
+            );
+        }
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-          Navigator.pushNamed(
-            context,
-            AddItemScreen.routeName,
-            arguments: ScreenArguments(
-              '축의금 등록',
-              '새로운 것'
-            )
-          );
+         _navigateRegToNote(null);
         },
         tooltip: "등록",
         child: const Icon(Icons.add),

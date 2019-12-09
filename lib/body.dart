@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:giv_tak_rec/bloc/personalUnit_bloc.dart';
 import 'package:giv_tak_rec/celebrationPage.dart';
 import 'package:giv_tak_rec/condolencePage.dart';
+
+import 'bloc/bloc_base.dart';
 
 
 
@@ -41,7 +44,10 @@ class _MotherTabPageState extends State<MotherTabPage> with SingleTickerProvider
         body: TabBarView(
           controller: _tabController,
           children: <Widget>[
-            CelebarationPage(),
+            BlocProvider(
+              bloc: PersonalUnitBloc(),
+              child: CelebarationPage()
+            ),
             CondolencePage(),
           ]
         ),

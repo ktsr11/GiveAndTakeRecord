@@ -56,24 +56,22 @@ class DBHelper {
     );
   }
 
-  //CREATE
+  //인서트 
   createData(PersonalUnit person) async {
     final db = await database;
     var res = await db.insert(table, person.toJson());
     return res;
   }
 
-  Future<PersonalUnit> selectPerson(int id) async {
+  //단건 가져오기 
+  getPersonal(int id) async {
     final db = await database;
-    var res = await db.rawQuery("SELECT * FROM $table WHERE $columnId = $id");
-    if(res.length > 0) {
-      return new PersonalUnit.fromJson(res.first);
-    }
-    return null;
+    var res = await db.query(table, where: '$columnId = ?', whereArgs: [id]);
+    return res.isNotEmpty ? PersonalUnit.fromJson(res.first) : Null;
   }
 
-  //READ 
-  Future<List<PersonalUnit>> getListPersonUnit() async {
+  //모든 데이터 가져오기 
+  getListPersonUnit() async {
     final db = await database; 
     var res = await db.query(table);
     List<PersonalUnit> list = res.isNotEmpty ? res.map((c) => PersonalUnit.fromJson(c)).toList() : [];
@@ -83,19 +81,19 @@ class DBHelper {
   //Update PersonalUnit 
   updatePerson(PersonalUnit person) async {
     final db = await database;
-    var res = await db.update(table, person.toJson(), where: 'id =?', whereArgs: [person.id]);
+    var res = await db.update(table, person.toJson(), where: '$columnId =?', whereArgs: [person.id]);
     return res;
   }
 
   //Delete PersonalUnit 
   deletePerson(int id) async {
     final db = await database; 
-    db.delete(table, where: 'id = ?', whereArgs: [id]);
+    db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
 
   //Delete All Person 
   deletaAllPerson() async {
     final db = await database;
-    db.rawDelete('DELETE FROM $table');
+    db.rawDelete('DELETE * FROM $table');
   }
 }
