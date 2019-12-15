@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:giv_tak_rec/bloc/bloc_base.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:giv_tak_rec/bloc/personalUnit_bloc.dart';
@@ -34,11 +33,11 @@ class _InputFormState extends State<AddItem> {
     _viewBloc = ViewPersonalUnitBloc();
   }
 
-  void _adaPerson(PersonalUnit per) async {
+  Future<void> _adaPerson(PersonalUnit per) async {
     _bloc.inAdd.add(per);
   }
 
-  void _updatePerson(PersonalUnit per) async {
+  Future<void> _updatePerson(PersonalUnit per) async {
     _viewBloc.inSave.add(per);
   }
 
@@ -175,14 +174,15 @@ class _InputFormState extends State<AddItem> {
                   child: RaisedButton(
                     onPressed: () {
                     if (_formKey.currentState.validate()) {
-                      _formKey.currentState.save();
-                        per.id == null ? _adaPerson(per) : _updatePerson(per);
+                      _formKey.currentState.save(); //현재 TextFormField에 있는 onSaved를 호출한다. 
+                      Navigator.pop(context);
+                      per.id == null ? _adaPerson(per) : _updatePerson(per);
 
                         final snackBar = SnackBar(
                           content: Text("저장 완료"),
                         );
                         Scaffold.of(context).showSnackBar(snackBar);
-                        Navigator.pop(context);
+                        
                       }
                     },
                     child: Text('저장'),

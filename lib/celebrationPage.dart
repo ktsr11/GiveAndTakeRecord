@@ -31,20 +31,7 @@ class _CelbarationBody extends State<CelebarationBody>{
     _viewBloc = ViewPersonalUnitBloc();
   }
 
-  // void _navigateToPersonal(PersonalUnit per) async {
-  //   bool update = await Navigator.of(context).push(
-  //     MaterialPageRoute(
-  //       builder: (context) => BlocProvider(
-  //         bloc: PersonalUnitBloc(),
-  //         child: ViewItem(
-
-  //         ),
-  //       )
-  //     )
-  //   );
-  // }
-
-  void _navigateRegToNote(PersonalUnit per) async {
+  void _navigateToItem(PersonalUnit per) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => BlocProvider(
@@ -57,8 +44,6 @@ class _CelbarationBody extends State<CelebarationBody>{
       ),
     );
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +67,7 @@ class _CelbarationBody extends State<CelebarationBody>{
                       item.id.toString(),
                     ),
                     onTap: () {
-                      _navigateRegToNote(item);
+                      _navigateToItem(item);
                     },
                   ),
                 );
@@ -98,7 +83,7 @@ class _CelbarationBody extends State<CelebarationBody>{
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-         _navigateRegToNote(null);
+         _navigateToItem(null);
         },
         tooltip: "등록",
         child: const Icon(Icons.add),

@@ -29,12 +29,12 @@ class ViewPersonalUnitBloc implements BlocBase {
     _deletedController.close();
   }
 
-  void _handleSavePersonal(PersonalUnit per) async {
-    await DBHelper().updatePerson(per);
+  _handleSavePersonal(PersonalUnit per)  {
+     DBHelper().updatePerson(per);
   }
 
-  void _handleDeletePerson(int id) async {
-    await DBHelper().deletePerson(id);
+   _handleDeletePerson(int id)  {
+     DBHelper().deletePerson(id);
     _inDelete.add(true);
   }
 }
