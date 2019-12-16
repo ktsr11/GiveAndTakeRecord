@@ -47,7 +47,7 @@ class DBHelper {
             $columnId INTEGER PRIMARY KEY,
             $columnTitle TEXT NULL,
             $columnName TEXT NULL,
-            $columnAmt INTEGER NULL,
+            $columnAmt TEXT NULL,
             $columnPhone TEXT NULL,
             $columnDate TEXT NULL
           )

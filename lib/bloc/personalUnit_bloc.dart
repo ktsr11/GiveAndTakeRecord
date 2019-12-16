@@ -20,12 +20,17 @@ class PersonalUnitBloc implements BlocBase {
   PersonalUnitBloc() {
     getPersons();
     _addController.stream.listen(_addPersons);
+    _saveController.stream.listen(_handleSavePersonal);
+    _deleteController.stream.listen(_handleDeletePerson);
 
   }
 
   dispose() {
     _controller.close();
     _addController.close();
+    _saveController.close();
+    _deleteController.close();
+    _deletedController.close();
   }
 
   void getPersons() async {
@@ -36,5 +41,24 @@ class PersonalUnitBloc implements BlocBase {
   void _addPersons(PersonalUnit person) async {
     await DBHelper().createData(person);
     getPersons();
+  }
+
+  final _saveController = StreamController<PersonalUnit>.broadcast();
+  StreamSink<PersonalUnit> get inSave => _saveController.sink;
+
+  final _deleteController = StreamController<int>.broadcast();
+  StreamSink<int> get inDelete => _deleteController.sink;
+
+  final _deletedController = StreamController<bool>.broadcast();
+  StreamSink<bool> get _inDelete => _deletedController.sink;
+  Stream<bool> get deleted => _deletedController.stream;
+
+  _handleSavePersonal(PersonalUnit per)  {
+     DBHelper().updatePerson(per);
+  }
+
+   _handleDeletePerson(int id)  {
+     DBHelper().deletePerson(id);
+    _inDelete.add(true);
   }
 }

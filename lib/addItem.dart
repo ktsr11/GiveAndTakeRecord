@@ -24,13 +24,13 @@ class _InputFormState extends State<AddItem> {
   final NumberTextInputFormatter _numberTextInputFormatter = NumberTextInputFormatter.getInstance();
 
   PersonalUnitBloc _bloc;
-  ViewPersonalUnitBloc _viewBloc;
+  //ViewPersonalUnitBloc _viewBloc;
 
   @override 
   void initState() {
     super.initState();
     _bloc = PersonalUnitBloc();
-    _viewBloc = ViewPersonalUnitBloc();
+    //_viewBloc = ViewPersonalUnitBloc();
   }
 
   Future<void> _adaPerson(PersonalUnit per) async {
@@ -38,12 +38,12 @@ class _InputFormState extends State<AddItem> {
   }
 
   Future<void> _updatePerson(PersonalUnit per) async {
-    _viewBloc.inSave.add(per);
+    _bloc.inSave.add(per);
   }
 
   void _deletePerson() {
-    _viewBloc.inDelete.add(widget.per.id);
-    _viewBloc.deleted.listen((deleted){
+    _bloc.inDelete.add(widget.per.id);
+    _bloc.deleted.listen((deleted){
       if(deleted) {
         Navigator.of(context).pop(true);
       }
@@ -60,7 +60,7 @@ class _InputFormState extends State<AddItem> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.delete),
-            onPressed: _deletePerson,
+            onPressed: per.id != null ? _deletePerson : null,
           ),
         ],
       ),
@@ -112,13 +112,14 @@ class _InputFormState extends State<AddItem> {
                 DateTimePickerFormField(
                   inputType: InputType.date, //날짜 및 시간 입력 받는 설정 
                   format: DateFormat("yyyy-MM-dd"), //날짜 포맷 지정 
+                  initialValue: per.date != null ? DateFormat("yyyy-MM-dd").parse(per.date) : DateTime.now(),
                   decoration: InputDecoration(
                       labelText: '날짜입력',
                       border: UnderlineInputBorder(),
                       filled: false,
                       icon: Icon(Icons.calendar_today),
                   ),
-                  onChanged: (dt) => setState(() => per.date = DateFormat("yyyy-MM-dd").format(dt)),
+                  onChanged: (dt) => setState(() => per.date = DateFormat("yyyy-MM-dd").format(dt).toString()),
                 ),
                 SizedBox(
                   height: _sizeHeight,
@@ -153,10 +154,10 @@ class _InputFormState extends State<AddItem> {
                         hintText: '경조사 금액을 입력해주세요.',
                         labelText: '금액',
                       ),
-                      initialValue: per.amt.toString(),
+                      initialValue: per.amt != null? per.amt: "0",
                       textAlign: TextAlign.right,
                       keyboardType: TextInputType.number,
-                      onSaved: (value) => setState(() => per.amt = int.parse(value.replaceAll(",", ""))  ),
+                      onSaved: (value) => setState(() => per.amt = value),
                       validator: InputValidate.validateNumber,
                       // TextInputFormatters are applied in sequence.
                       inputFormatters: <TextInputFormatter> [
@@ -175,14 +176,9 @@ class _InputFormState extends State<AddItem> {
                     onPressed: () {
                     if (_formKey.currentState.validate()) {
                       _formKey.currentState.save(); //현재 TextFormField에 있는 onSaved를 호출한다. 
-                      Navigator.pop(context);
+                      Navigator.of(context).pop(true);
                       per.id == null ? _adaPerson(per) : _updatePerson(per);
 
-                        final snackBar = SnackBar(
-                          content: Text("저장 완료"),
-                        );
-                        Scaffold.of(context).showSnackBar(snackBar);
-                        
                       }
                     },
                     child: Text('저장'),

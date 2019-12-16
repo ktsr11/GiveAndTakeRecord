@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:giv_tak_rec/addItem.dart';
 import 'package:giv_tak_rec/bloc/bloc_base.dart';
@@ -22,13 +24,13 @@ class CelebarationBody extends StatefulWidget {
 
 class _CelbarationBody extends State<CelebarationBody>{
   PersonalUnitBloc _bloc;
-  ViewPersonalUnitBloc _viewBloc;
+  //ViewPersonalUnitBloc _viewBloc;
 
   @override 
   void initState() {
     super.initState();
     _bloc = BlocProvider.of<PersonalUnitBloc>(context);
-    _viewBloc = ViewPersonalUnitBloc();
+   // _viewBloc = ViewPersonalUnitBloc();
   }
 
   void _navigateToItem(PersonalUnit per) async {
@@ -47,6 +49,7 @@ class _CelbarationBody extends State<CelebarationBody>{
 
   @override
   Widget build(BuildContext context) {
+    _bloc = BlocProvider.of<PersonalUnitBloc>(context);
     return Scaffold(
       body: StreamBuilder(
         stream: _bloc.pers,
@@ -59,7 +62,7 @@ class _CelbarationBody extends State<CelebarationBody>{
                 return Dismissible(
                   key: UniqueKey(),
                   onDismissed: (direction) {
-                    _viewBloc.inDelete.add(item.id);
+                    _bloc.inDelete.add(item.id);
                   },
                   child: ListTile(
                     title: Text(item.title),

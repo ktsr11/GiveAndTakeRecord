@@ -6,7 +6,7 @@ class PersonalUnit {
   String title;
   String name;
   String date;
-  int amt; 
+  String amt; 
   String phoneNumber;
 
   PersonalUnit({
